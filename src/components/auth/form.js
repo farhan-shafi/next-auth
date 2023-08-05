@@ -1,15 +1,15 @@
-import { createUser } from "@/pages/services/signup";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-export default function Form({ signin }) {
-  const [loading, setLoading] = useState(false);
-  const [userExist, setUserExist] = useState(false);
+export default function Form({ signin, onFormSubmit }) {
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
-
+  const onSubmitHandler = (e) => {
+    e.preventDefault();
+    onFormSubmit(user.email, user.password);
+  };
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -20,7 +20,7 @@ export default function Form({ signin }) {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form className="space-y-6" onSubmit={onSubmitHandler}>
             <div>
               <label
                 htmlFor="email"
@@ -43,11 +43,7 @@ export default function Form({ signin }) {
                 />
               </div>
             </div>
-            {userExist && (
-              <p className="bg-red-500 p-2 text-white text-sm">
-                User already exist
-              </p>
-            )}
+
             <div>
               <div className="flex items-center justify-between">
                 <label
@@ -86,35 +82,10 @@ export default function Form({ signin }) {
             </div>
             <div>
               <button
-                onClick={async () => {
-                  try {
-                    setLoading(true);
-                    const allUsers = await (
-                      await fetch("http://localhost:3000/api/user", {
-                        method: "GET",
-                      })
-                    ).json();
-                    const isUserExist = allUsers.find(
-                      (u) => u.email === user.email
-                    );
-                    if (!isUserExist) {
-                      await fetch("http://localhost:3000/api/user", {
-                        method: "POST",
-                        body: JSON.stringify(user),
-                      });
-                    } else {
-                      setUserExist(true);
-                    }
-                  } catch (error) {
-                    console.error(error);
-                    setLoading(false);
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
+                type="submit"
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                {!loading ? (signin ? "Sign in" : "Sign up") : "Loading..."}
+                {signin ? "Sign in" : "Sign up"}
               </button>
             </div>
           </form>
